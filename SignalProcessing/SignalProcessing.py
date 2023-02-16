@@ -145,8 +145,8 @@ x7 = [2, 4, 8, 16]
 y7 = snr_s
 fig, ax = plt.subplots(figsize=(21 / 2.54, 14 / 2.54))
 ax.plot(x7, y7, linewidth=1)
-ax.set_xlabel('Залежність співвідношення сигнал-шум від кроку дискретизації', fontsize=14)
+ax.set_xlabel('Крок дискретизації', fontsize=14)
 ax.set_ylabel('ССШ', fontsize=14)
-plt.title('Залежність дисперсії від кроку дискретизації', fontsize=14)
+plt.title('Залежність співвідношення сигнал-шум від кроку дискретизації', fontsize=14)
 title = 'pr3_fig7'
 fig.savefig('./figures/' + title + '.png', dpi=600)
