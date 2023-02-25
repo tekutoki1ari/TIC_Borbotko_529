@@ -1,4 +1,5 @@
 import numpy
+import numpy as np
 import scipy
 from scipy import signal, fft
 import matplotlib.pyplot as plt
@@ -66,7 +67,6 @@ for d_t in [2, 4, 8, 16]:
 
     discrete_signal_filtred = scipy.signal.sosfiltfilt(filter_discrete, discrete_signals)
     discrete_signals_filtred += [list(discrete_signal_filtred)]
-
 
 
     e1 = discrete_signal_filtred - filter_signal
@@ -149,4 +149,100 @@ ax.set_xlabel('Крок дискретизації', fontsize=14)
 ax.set_ylabel('ССШ', fontsize=14)
 plt.title('Залежність співвідношення сигнал-шум від кроку дискретизації', fontsize=14)
 title = 'pr3_fig7'
+fig.savefig('./figures/' + title + '.png', dpi=600)
+
+
+quantize_signals = []
+dispersion_ss = []
+snr_ss = []
+
+for M in [4, 16, 64, 256]:
+    bits = []
+    signal_from_bits = []
+    delta = (numpy.max(filter_signal) - numpy.min(filter_signal)) / (M - 1)
+    quantize_signal = delta * np.round(filter_signal / delta)
+
+    quantize_levels = numpy.arange(numpy.min(quantize_signal), numpy.max(quantize_signal)+1, delta)
+    quantize_bit = numpy.arange(0, M)
+    quantize_bits = [format(bits, '0' + str(int(numpy.log(M) / numpy.log(2))) + 'b') for bits in quantize_bit]
+
+    quantize_table = numpy.c_[quantize_levels[:M], quantize_bits[:M]]
+    title = f'pr_4 Таблиця квантування для {M} рівнів'
+    fig, ax = plt.subplots(figsize=(14/2.54, M/2.54))
+    table = ax.table(cellText=quantize_table, colLabels=['Значення сигналу', 'Кодова послідовність'], loc='center')
+    table.set_fontsize(14)
+    table.scale(1, 2)
+    ax.axis('off')
+    fig.savefig('./figures/' + title + '.png', dpi=600)
+
+    for signal_value in quantize_signal:
+        for index, value in enumerate(quantize_levels[:M]):
+            if numpy.round(numpy.abs(signal_value-value), 0) == 0:
+                bits.append(quantize_bits[index])
+                break
+
+    quantize_signals.append(quantize_signal)
+    bits = [int(item) for item in list(''.join(bits))]
+
+    e2 = quantize_signal - filter_signal
+    dispersion_a = numpy.var(e2)
+    snr_a = numpy.var(filter_signal) / dispersion_a
+    dispersion_ss += [dispersion_a]
+    snr_ss += [snr_a]
+
+    # e1 = discrete_signal_filtred - filter_signal
+    # dispersion = numpy.var(e1)
+    # snr = numpy.var(filter_signal) / dispersion
+    # dispersion_s += [dispersion]
+    # snr_s += [snr]
+
+    x8 = numpy.arange(0, len(bits))
+    y8 = bits
+    fig, ax = plt.subplots(figsize=(21 / 2.54, 14 / 2.54))
+    ax.step(x8, y8, linewidth=0.1)
+    # ax.plot(x8, y8, linewidth=1)
+    ax.set_xlabel('Біти', fontsize=14)
+    ax.set_ylabel('Амлітуда сигналу', fontsize=14)
+    plt.title(f'Кодова послідовність сигналупри кількості рівнів квантування {M}', fontsize=14)
+    title = f'pr_4 Кодова послідовність сигналупри кількості рівнів квантування {M}'
+    fig.savefig('./figures/' + title + '.png', dpi=600)
+
+
+x9 = time
+y9 = quantize_signals
+fig, ax = plt.subplots(2, 2, figsize=(21 / 2.54, 14 / 2.54))
+s4 = 0
+for i in range(0, 2):
+    for j in range(0, 2):
+
+        ax[i][j].plot(x9, y9[s4], linewidth=1)
+
+        s4 += 1
+
+fig.supxlabel('Час (секунди)', fontsize=14)
+fig.supylabel('Амлітуда сигналу', fontsize=14)
+fig.suptitle('Цифрові сигнали з рівнями квантування (4, 16, 64, 256)', fontsize=14)
+title = 'pr_4 Цифрові сигнали з рівнями квантування (4, 16, 64, 256)'
+fig.savefig('./figures/' + title + '.png', dpi=600)
+
+x10 = [4, 16, 64, 256]
+y10 = dispersion_ss
+
+fig, ax = plt.subplots(figsize=(21 / 2.54, 14 / 2.54))
+ax.plot(x10, y10, linewidth=1)
+ax.set_xlabel('Кількість рівнів квантування', fontsize=14)
+ax.set_ylabel('Дисперсія', fontsize=14)
+plt.title('Залежність дисперсії від кількості рівнів квантування', fontsize=14)
+title = 'pr_4 Залежність дисперсії від кількості рівнів квантування'
+fig.savefig('./figures/' + title + '.png', dpi=600)
+
+
+x11 = [4, 16, 64, 256]
+y11 = snr_ss
+fig, ax = plt.subplots(figsize=(21 / 2.54, 14 / 2.54))
+ax.plot(x11, y11, linewidth=1)
+ax.set_xlabel('Кількість рівнів квантування', fontsize=14)
+ax.set_ylabel('ССШ', fontsize=14)
+plt.title('Залежність співвідношення сигнал-шум від кількості рівнів квантування', fontsize=14)
+title = 'pr_4 Залежність співвідношення сигнал-шум від кількості рівнів квантування'
 fig.savefig('./figures/' + title + '.png', dpi=600)
